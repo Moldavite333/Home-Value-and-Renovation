@@ -1,8 +1,8 @@
 {
   "name": "Home Headquarters",
   "short_name": "Home HQ",
-  "id": "./",
-  "start_url": "./",
+  "id": "./home-headquarters-v2",
+  "start_url": "./?homehq_install=v2",
   "scope": "./",
   "display": "standalone",
   "background_color": "#0d1510",
