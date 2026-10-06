@@ -1,5 +1,5 @@
-const CACHE='juniper-home-tracker-v8';
-const ASSETS=['./','./index.html','./styles.css','./app.js','./backend.js','./project-details.js','./manifest.json','./icon.svg'];
+const CACHE='juniper-home-tracker-v9';
+const ASSETS=['./','./index.html','./styles.css','./app.js','./backend-auth-v2.js','./project-details.js','./manifest.json','./icon.svg'];
 
 self.addEventListener('install',event=>{
   self.skipWaiting();
