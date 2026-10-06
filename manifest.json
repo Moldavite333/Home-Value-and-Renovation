@@ -1,11 +1,13 @@
 {
-  "name": "Juniper Home Tracker",
-  "short_name": "Home Tracker",
+  "name": "Home Headquarters",
+  "short_name": "Home HQ",
+  "id": "./",
   "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#0d1510",
   "theme_color": "#132018",
-  "description": "Home value, mortgage equity and resale-first renovation tracker for 118 Juniper Trail.",
+  "description": "Private home value, mortgage equity and resale-first renovation decision tracker.",
   "icons": [
     {
       "src": "icon.svg",
