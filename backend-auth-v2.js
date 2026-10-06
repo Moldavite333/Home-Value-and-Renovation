@@ -264,6 +264,17 @@ async function pullAutomatedRows(){
     if(mort.data.principal_balance!=null) state.actualBalance=Number(mort.data.principal_balance);
     if(mort.data.interest_rate!=null) state.loanRate=Number(mort.data.interest_rate);
     if(mort.data.monthly_payment!=null) state.totalMonthly=Number(mort.data.monthly_payment);
+    if(mort.data.as_of) state.actualBalanceAsOf=mort.data.as_of;
+    if(mort.data.next_payment_due) state.nextPaymentDue=mort.data.next_payment_due;
+    const raw=mort.data.raw_data||{};
+    if(raw.original_loan_amount!=null) state.originalLoan=Number(raw.original_loan_amount);
+    if(raw.loan_term_years!=null) state.loanTerm=Number(raw.loan_term_years);
+    if(raw.loan_start_date) state.loanStart=raw.loan_start_date;
+    if(raw.loan_type) state.mortgageLoanType=raw.loan_type;
+    if(raw.original_payoff_date) state.mortgageOriginalPayoffDate=raw.original_payoff_date;
+    if(raw.estimated_new_payoff_date) state.mortgageEstimatedPayoffDate=raw.estimated_new_payoff_date;
+    if(raw.extra_payments_and_savings!=null) state.mortgageExtraPaymentsSavings=Number(raw.extra_payments_and_savings);
+    if(raw.estimated_months_reduced!=null) state.mortgageMonthsReduced=Number(raw.estimated_months_reduced);
     changed=true;
   }
   if(market.data){
