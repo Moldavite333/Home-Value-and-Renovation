@@ -37,6 +37,9 @@ function injectCloudUI(){
     #cloudAuthCard{width:min(430px,100%);background:#15221a;border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:18px;box-shadow:0 24px 80px rgba(0,0,0,.45)}
     #cloudAuthCard h2{margin:0 0 5px}
     #cloudAuthCard input{width:100%;box-sizing:border-box;margin:5px 0 9px}
+    .cloudPasswordField{position:relative}
+    .cloudPasswordField input{padding-right:72px}
+    .cloudShowPassword{position:absolute;right:7px;top:50%;transform:translateY(-50%);border:0;background:transparent;color:#9cc5a0;font-weight:850;padding:6px 8px;min-height:auto;cursor:pointer}
     #cloudAuthActions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:9px}
     #cloudAuthError{min-height:18px;font-size:12px;margin-top:8px;color:#e0b0aa}
     #cloudForgot{width:100%;margin-top:8px;background:transparent;border:0;color:#9cc5a0;text-decoration:underline;padding:7px;cursor:pointer}
@@ -61,7 +64,7 @@ function injectCloudUI(){
   modal.innerHTML = `<div id="cloudAuthCard">
     <div class="row"><div class="grow"><h2>Home Headquarters</h2><div class="section-sub">Sign in to sync this device with your private Supabase database.</div></div><button id="cloudAuthClose" class="btn small ghost">×</button></div>
     <label><span class="form-label">Email</span><input id="cloudEmail" type="email" autocomplete="email"></label>
-    <label><span class="form-label">Password</span><input id="cloudPassword" type="password" autocomplete="current-password"></label>
+    <label><span class="form-label">Password</span><div class="cloudPasswordField"><input id="cloudPassword" type="password" autocomplete="current-password"><button id="cloudShowPassword" type="button" class="cloudShowPassword" aria-label="Show password">Show</button></div></label>
     <div id="cloudAuthActions"><button id="cloudSignIn" class="btn primary">Sign in</button><button id="cloudSignUp" class="btn">Create account</button></div>
     <button id="cloudForgot" type="button">Forgot password?</button>
     <div id="cloudAuthError"></div>
@@ -73,8 +76,8 @@ function injectCloudUI(){
   resetModal.id = 'cloudResetModal';
   resetModal.innerHTML = `<div id="cloudResetCard">
     <div class="row"><div class="grow"><h2>Choose a new password</h2><div class="section-sub">Your recovery link was accepted. Set a new Home Headquarters password.</div></div><button id="cloudResetClose" class="btn small ghost">×</button></div>
-    <label><span class="form-label">New password</span><input id="cloudNewPassword" type="password" autocomplete="new-password"></label>
-    <label><span class="form-label">Confirm new password</span><input id="cloudNewPassword2" type="password" autocomplete="new-password"></label>
+    <label><span class="form-label">New password</span><div class="cloudPasswordField"><input id="cloudNewPassword" type="password" autocomplete="new-password"><button id="cloudShowNewPassword" type="button" class="cloudShowPassword" aria-label="Show new password">Show</button></div></label>
+    <label><span class="form-label">Confirm new password</span><div class="cloudPasswordField"><input id="cloudNewPassword2" type="password" autocomplete="new-password"><button id="cloudShowNewPassword2" type="button" class="cloudShowPassword" aria-label="Show confirmation password">Show</button></div></label>
     <button id="cloudSavePassword" class="btn primary" style="width:100%;margin-top:6px">Save new password</button>
     <div id="cloudResetError"></div>
   </div>`;
@@ -92,6 +95,19 @@ function injectCloudUI(){
   document.getElementById('cloudForgot').onclick = requestPasswordReset;
   document.getElementById('cloudResetClose').onclick = ()=>resetModal.classList.remove('open');
   document.getElementById('cloudSavePassword').onclick = saveRecoveredPassword;
+  document.getElementById('cloudShowPassword').onclick = ()=>toggleCloudPassword('cloudPassword','cloudShowPassword');
+  document.getElementById('cloudShowNewPassword').onclick = ()=>toggleCloudPassword('cloudNewPassword','cloudShowNewPassword');
+  document.getElementById('cloudShowNewPassword2').onclick = ()=>toggleCloudPassword('cloudNewPassword2','cloudShowNewPassword2');
+}
+
+function toggleCloudPassword(inputId,buttonId){
+  const input=document.getElementById(inputId);
+  const button=document.getElementById(buttonId);
+  if(!input||!button)return;
+  const reveal=input.type==='password';
+  input.type=reveal?'text':'password';
+  button.textContent=reveal?'Hide':'Show';
+  button.setAttribute('aria-label',reveal?'Hide password':'Show password');
 }
 
 async function requestPasswordReset(){
