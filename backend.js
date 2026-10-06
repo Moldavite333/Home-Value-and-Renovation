@@ -39,6 +39,12 @@ function injectCloudUI(){
     #cloudAuthCard input{width:100%;box-sizing:border-box;margin:5px 0 9px}
     #cloudAuthActions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:9px}
     #cloudAuthError{min-height:18px;font-size:12px;margin-top:8px;color:#e0b0aa}
+    #cloudForgot{width:100%;margin-top:8px;background:transparent;border:0;color:#9cc5a0;text-decoration:underline;padding:7px;cursor:pointer}
+    #cloudResetModal{position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:10000;display:none;align-items:center;justify-content:center;padding:18px}
+    #cloudResetModal.open{display:flex}
+    #cloudResetCard{width:min(430px,100%);background:#15221a;border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:18px;box-shadow:0 24px 80px rgba(0,0,0,.45)}
+    #cloudResetCard input{width:100%;box-sizing:border-box;margin:5px 0 9px}
+    #cloudResetError{min-height:18px;font-size:12px;margin-top:8px;color:#e0b0aa}
     #cloudSignedIn{font-size:12px;opacity:.78}
   `;
   document.head.appendChild(style);
@@ -57,10 +63,22 @@ function injectCloudUI(){
     <label><span class="form-label">Email</span><input id="cloudEmail" type="email" autocomplete="email"></label>
     <label><span class="form-label">Password</span><input id="cloudPassword" type="password" autocomplete="current-password"></label>
     <div id="cloudAuthActions"><button id="cloudSignIn" class="btn primary">Sign in</button><button id="cloudSignUp" class="btn">Create account</button></div>
+    <button id="cloudForgot" type="button">Forgot password?</button>
     <div id="cloudAuthError"></div>
     <div class="section-sub">Your password is sent directly to Supabase. It is never stored in the GitHub repo or in this app's data.</div>
   </div>`;
   document.body.appendChild(modal);
+
+  const resetModal = document.createElement('div');
+  resetModal.id = 'cloudResetModal';
+  resetModal.innerHTML = `<div id="cloudResetCard">
+    <div class="row"><div class="grow"><h2>Choose a new password</h2><div class="section-sub">Your recovery link was accepted. Set a new Home Headquarters password.</div></div><button id="cloudResetClose" class="btn small ghost">×</button></div>
+    <label><span class="form-label">New password</span><input id="cloudNewPassword" type="password" autocomplete="new-password"></label>
+    <label><span class="form-label">Confirm new password</span><input id="cloudNewPassword2" type="password" autocomplete="new-password"></label>
+    <button id="cloudSavePassword" class="btn primary" style="width:100%;margin-top:6px">Save new password</button>
+    <div id="cloudResetError"></div>
+  </div>`;
+  document.body.appendChild(resetModal);
 
   document.getElementById('cloudAuthClose').onclick = ()=>modal.classList.remove('open');
   modal.addEventListener('click', e=>{if(e.target===modal) modal.classList.remove('open')});
@@ -71,6 +89,52 @@ function injectCloudUI(){
   };
   document.getElementById('cloudSignIn').onclick = ()=>handleCloudAuth('signin');
   document.getElementById('cloudSignUp').onclick = ()=>handleCloudAuth('signup');
+  document.getElementById('cloudForgot').onclick = requestPasswordReset;
+  document.getElementById('cloudResetClose').onclick = ()=>resetModal.classList.remove('open');
+  document.getElementById('cloudSavePassword').onclick = saveRecoveredPassword;
+}
+
+async function requestPasswordReset(){
+  const email = document.getElementById('cloudEmail').value.trim();
+  const err = document.getElementById('cloudAuthError');
+  err.textContent='';
+  if(!email){err.textContent='Enter the email for your Home Headquarters account first.';return}
+  try{
+    const redirectTo = window.location.origin + window.location.pathname;
+    const {error}=await homeCloud.auth.resetPasswordForEmail(email,{redirectTo});
+    if(error) throw error;
+    err.style.color='#bde0bf';
+    err.textContent='Password reset email sent. Open it on this device, tap the reset link, then choose a new password here.';
+  }catch(e){
+    err.style.color='#e0b0aa';
+    err.textContent=e?.message || 'Could not send the reset email.';
+  }
+}
+
+function showRecoveryModal(){
+  document.getElementById('cloudAuthModal')?.classList.remove('open');
+  const reset=document.getElementById('cloudResetModal');
+  if(reset) reset.classList.add('open');
+  setTimeout(()=>document.getElementById('cloudNewPassword')?.focus(),50);
+}
+
+async function saveRecoveredPassword(){
+  const p1=document.getElementById('cloudNewPassword').value;
+  const p2=document.getElementById('cloudNewPassword2').value;
+  const err=document.getElementById('cloudResetError');
+  err.textContent='';
+  if(p1.length<8){err.textContent='Use at least 8 characters.';return}
+  if(p1!==p2){err.textContent='The two passwords do not match.';return}
+  try{
+    const {error}=await homeCloud.auth.updateUser({password:p1});
+    if(error) throw error;
+    err.style.color='#bde0bf';
+    err.textContent='Password updated. You are signed in.';
+    setTimeout(()=>document.getElementById('cloudResetModal')?.classList.remove('open'),900);
+  }catch(e){
+    err.style.color='#e0b0aa';
+    err.textContent=e?.message || 'Could not update the password.';
+  }
 }
 
 async function handleCloudAuth(mode){
@@ -263,8 +327,18 @@ async function startHomeCloud(){
     const mod=await import('https://esm.sh/@supabase/supabase-js@2');
     homeCloud=mod.createClient(HOME_SUPABASE_URL,HOME_SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
     const {data}=await homeCloud.auth.getSession();
-    if(data.session?.user) await connectCloudForUser(data.session.user); else updateCloudBar();
+    const recoveryHint=window.location.hash.includes('type=recovery') || window.location.search.includes('type=recovery');
+    if(data.session?.user){
+      if(recoveryHint){cloudUser=data.session.user;updateCloudBar();showRecoveryModal();}
+      else await connectCloudForUser(data.session.user);
+    }else updateCloudBar();
     homeCloud.auth.onAuthStateChange(async (event,session)=>{
+      if(event==='PASSWORD_RECOVERY'){
+        cloudUser=session?.user||null;
+        updateCloudBar();
+        showRecoveryModal();
+        return;
+      }
       if(session?.user){
         if(!cloudUser || cloudUser.id!==session.user.id) await connectCloudForUser(session.user);
       }else{
