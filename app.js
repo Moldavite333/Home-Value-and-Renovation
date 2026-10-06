@@ -41,7 +41,7 @@ const defaults={
 propertyName:'Juniper Home Tracker',privateAddress:'',locationLabel:'Evergreen-area, Colorado',primarySqft:860,bonusSqft:660,lotAcres:1.46,beds:2,baths:1,bonusLegal:'Unverified',bonusNotes:'Finished, permanently heated bonus room above powered garage with separate exterior deck access.',purchasePrice:'',purchaseDate:'',
 sources:seededSources,comps:seededComps,projects:seededProjects,risks:seededRisks,marketHistory:[],saleHistory:[],savedScenarios:[],
 valueBasis:'avm',manualValue:'',growthLow:1,growthBase:2.75,growthHigh:4.5,inflationRate:2.5,realDollars:false,sellCost:7,repairReserve:10000,
-originalLoan:'',loanRate:'',loanTerm:30,loanStart:'',actualBalance:'',totalMonthly:'',
+originalLoan:'',loanRate:'',loanTerm:30,loanStart:'',actualBalance:'',actualBalanceAsOf:'',totalMonthly:'',nextPaymentDue:'',mortgageLoanType:'',mortgageOriginalPayoffDate:'',mortgageEstimatedPayoffDate:'',mortgageExtraPaymentsSavings:'',mortgageMonthsReduced:'',
 marketYoy:-1.6,marketForecast:0.4,inventoryCount:314,inventoryYoy:23.9,daysOnMarket:64,marketRate:7.28,saleToList:98.5,priceCutShare:35,
 equityTarget:400000,replacementPrice:700000,replacementRate:7.28,replacementTerm:30,replacementGrowth:2.75,staySellHorizon:5,
 alertValueTarget:700000,alertMarketScore:75,alertNetTarget:400000};
@@ -59,7 +59,26 @@ function confidence(){const vals=state.sources.filter(s=>s.inBlend&&Number(s.val
 function confidenceLabel(s){return s>=75?'High':s>=50?'Medium':'Low'}
 function payment(P,rate,years){P=Number(P)||0;const n=(Number(years)||30)*12,r=(Number(rate)||0)/1200;if(!P)return 0;if(!r)return P/n;return P*r/(1-Math.pow(1+r,-n))}
 function monthsBetween(start,end){if(!start)return 0;const d=new Date(start+'T12:00:00');if(Number.isNaN(d.getTime()))return 0;let m=(end.getFullYear()-d.getFullYear())*12+(end.getMonth()-d.getMonth());if(end.getDate()<d.getDate())m--;return Math.max(0,m)}
-function loanBalanceAt(date){const P=Number(state.originalLoan)||0,years=Number(state.loanTerm)||30,n=years*12,r=(Number(state.loanRate)||0)/1200;if(!P||!state.loanStart)return Number(state.actualBalance)||0;const k=Math.min(n,monthsBetween(state.loanStart,date));if(k>=n)return 0;if(!r)return Math.max(0,P-(P/n)*k);const pay=payment(P,state.loanRate,years);return Math.max(0,P*Math.pow(1+r,k)-pay*((Math.pow(1+r,k)-1)/r))}
+function loanBalanceAt(date){
+  const target=date instanceof Date?date:new Date(date),actual=Number(state.actualBalance)||0,rate=Number(state.loanRate)||0,years=Number(state.loanTerm)||30;
+  if(actual>0){
+    const asOf=state.actualBalanceAsOf||today(),asOfDate=new Date(asOf+'T12:00:00');
+    if(!Number.isNaN(asOfDate.getTime())&&target>=asOfDate){
+      const k=monthsBetween(asOf,target);
+      if(k<=0)return actual;
+      const r=rate/1200,scheduledPI=payment(Number(state.originalLoan)||actual,rate,years);
+      if(!r)return Math.max(0,actual-scheduledPI*k);
+      return Math.max(0,actual*Math.pow(1+r,k)-scheduledPI*((Math.pow(1+r,k)-1)/r));
+    }
+  }
+  const P=Number(state.originalLoan)||0,n=years*12,r=rate/1200;
+  if(!P||!state.loanStart)return actual;
+  const k=Math.min(n,monthsBetween(state.loanStart,target));
+  if(k>=n)return 0;
+  if(!r)return Math.max(0,P-(P/n)*k);
+  const pay=payment(P,rate,years);
+  return Math.max(0,P*Math.pow(1+r,k)-pay*((Math.pow(1+r,k)-1)/r));
+}
 function currentBalance(){return Number(state.actualBalance)>0?Number(state.actualBalance):loanBalanceAt(new Date())}
 function saleNet(value=decisionValue(),date=new Date()){return Math.max(0,Number(value)-loanBalanceAt(date)-Number(value)*(Number(state.sellCost)/100)-Number(state.repairReserve||0))}
 function displayFuture(n,years){return state.realDollars?Number(n)/Math.pow(1+Number(state.inflationRate)/100,years):Number(n)}
