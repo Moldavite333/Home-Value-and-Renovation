@@ -1,4 +1,4 @@
-const CACHE='juniper-home-tracker-v5';
+const CACHE='juniper-home-tracker-v6';
 const ASSETS=['./','./index.html','./styles.css','./app.js','./backend.js','./project-details.js','./manifest.json','./icon.svg'];
 
 self.addEventListener('install',event=>{
