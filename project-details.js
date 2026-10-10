@@ -94,6 +94,144 @@ const RENOVATION_DETAILS = {
   }
 };
 
+
+const RENOVISION_VIDEOS = {
+  punch: [
+    {
+      title: 'How to Patch Drywall',
+      url: 'https://www.youtube.com/watch?v=MYyN_h-X5vE',
+      fit: 'DIY: excellent',
+      summary: 'Useful for holes and damaged wall sections before paint. The practical sequence is patch, compound, feather, sand, prime as needed, then paint.'
+    },
+    {
+      title: 'DIY How to Paint Like a Pro — A to Z',
+      url: 'https://www.youtube.com/watch?v=2eUxz_or2Qs',
+      fit: 'DIY: excellent',
+      summary: 'Covers surface prep, fixing wall imperfections, sanding, cutting, rolling, a second coat and baseboard trim — exactly the kind of low-cost owner labor that belongs in the pre-sale punch list.'
+    },
+    {
+      title: 'How to Paint a Room in a Weekend',
+      url: 'https://www.youtube.com/watch?v=HLQCd3bQvPM',
+      fit: 'DIY: excellent',
+      summary: 'A shorter room-focused workflow covering brush loading, cutting, rolling, back-rolling, sanding between coats and trim.'
+    }
+  ],
+  deck: [
+    {
+      title: 'The Best Way to Stain Your Deck PERIOD!!!!',
+      url: 'https://www.youtube.com/watch?v=HLb527FWg0A',
+      fit: 'DIY: excellent if structure is sound',
+      summary: 'A good match for cleaning and refinishing a structurally sound deck. Keep structural framing, ledger, major rot and elevated safety issues separate from cosmetic refinishing.'
+    },
+    {
+      title: "Easiest Deck You'll Ever Build | Anyone Can Do This",
+      url: 'https://www.youtube.com/watch?v=H596PLvg2AY',
+      fit: 'DIY: useful reference',
+      summary: 'Shows the framing and assembly logic behind a simple floating deck. Useful background for board replacement and understanding deck structure even when the existing deck is being repaired rather than rebuilt.'
+    }
+  ],
+  windows: [
+    {
+      title: 'How to Replace a Window EASY',
+      url: 'https://www.youtube.com/watch?v=BbEMx_2huWc',
+      fit: 'DIY: selective',
+      summary: 'Shows replacement-window removal and installation, including water/air sealing. Good for understanding the work; enlarging openings, structural changes, egress and exterior flashing still need a project-specific code and risk check.'
+    },
+    {
+      title: 'How to Install a New Window | Quick and Easy',
+      url: 'https://www.youtube.com/watch?v=ISmYpOQHPSs',
+      fit: 'DIY: selective',
+      summary: 'Useful for new-window installation details and sequencing. Treat weatherproofing and opening changes as the critical risk points.'
+    }
+  ],
+  kitchen: [
+    {
+      title: 'DIY Kitchen Remodel That Will Save You Money!',
+      url: 'https://www.youtube.com/watch?v=VM-lc8rYolQ',
+      fit: 'DIY: strong',
+      summary: 'Especially relevant to our resale-first plan: cabinet painting, countertop work, tile-over-tile, sink installation and vinyl plank flooring while keeping the project budget-conscious.'
+    },
+    {
+      title: 'How To Install Vinyl Plank Flooring Like a Pro',
+      url: 'https://www.youtube.com/watch?v=waCiOUOaR_A',
+      fit: 'DIY: strong',
+      summary: 'A practical flooring install reference for a cosmetic refresh where the subfloor is already sound and flat.'
+    }
+  ],
+  bath1: [
+    {
+      title: 'Completely Redo Your Bathroom on a Small Budget!',
+      url: 'https://www.youtube.com/watch?v=1xHeYVUQxD8',
+      fit: 'DIY: demolition / prep',
+      summary: 'Good owner-labor material for fixture removal and controlled demolition. This is where sweat equity can reduce cost before plumbing, electrical or waterproofing work becomes critical.'
+    },
+    {
+      title: 'DIY How to Renovate the Tub / Shower from A to Z',
+      url: 'https://www.youtube.com/watch?v=NS6TPiHaN2Y',
+      fit: 'DIY: intermediate',
+      summary: 'Long-form tub/shower renovation guide covering demolition, plumbing transitions, tub installation, waterproofing board, tile, fixtures, silicone and finish repairs. Use it as a system guide, with local permit/code checks for plumbing and electrical.'
+    }
+  ],
+  bath2: [
+    {
+      title: 'DIY How to Renovate the Tub / Shower from A to Z',
+      url: 'https://www.youtube.com/watch?v=NS6TPiHaN2Y',
+      fit: 'DIY: mixed',
+      summary: 'Useful for understanding the full wet-area build sequence. We can self-perform demo, framing assistance, board, paint, trim and selected finish work while separating permit-critical trades.'
+    },
+    {
+      title: 'DIY How to Frame Your Basement A to Z',
+      url: 'https://www.youtube.com/watch?v=wN7ftczQfok',
+      fit: 'DIY: strong for non-structural framing',
+      summary: 'Covers interior walls, door framing, bottom plates, walls, bulkheads and framing around utilities — highly relevant to creating a new bathroom enclosure without treating structural or utility work casually.'
+    }
+  ],
+  adu: [
+    {
+      title: 'DIY | How To Renovate an Unfinished Basement | A To Z',
+      url: 'https://www.youtube.com/watch?v=RIzNQhfVFWA',
+      fit: 'DIY: strong reference',
+      summary: 'A broad start-to-finish renovation reference spanning framing and finish work. Useful for planning which garage/loft conversion tasks can be owner labor after legal-use, fire-separation and utility requirements are settled.'
+    },
+    {
+      title: 'DIY How to Frame Your Basement A to Z',
+      url: 'https://www.youtube.com/watch?v=wN7ftczQfok',
+      fit: 'DIY: strong for non-structural framing',
+      summary: 'A practical framing guide for walls, doors and bulkheads. Good candidate for owner labor once the permitted layout is known.'
+    },
+    {
+      title: 'My 20 Steps To A Perfect Renovation',
+      url: 'https://www.youtube.com/watch?v=KnMe4LC22lc',
+      fit: 'DIY: planning',
+      summary: 'Useful for sequencing the project so demolition, rough trades, inspections, insulation/drywall and finish work happen in the right order instead of creating rework.'
+    }
+  ]
+};
+
+function renovationVideosFor(project){
+  return RENOVISION_VIDEOS[project.id] || [];
+}
+
+function renderRenovisionVideos(project){
+  const videos=renovationVideosFor(project);
+  if(!videos.length) return '';
+  return `
+    <div class="projectDetailSection">
+      <h3>Home RenoVision DIY guides</h3>
+      <p class="tiny">Matched from Home RenoVision DIY videos and transcript/chapter research. These are owner-labor candidates, not substitutes for local permits, inspections or a qualified trade where required.</p>
+      <div class="renoVideoList">
+        ${videos.map(v=>`
+          <a class="renoVideoCard" href="${esc(v.url)}" target="_blank" rel="noopener noreferrer">
+            <div class="renoVideoTop"><strong>${esc(v.title)}</strong><span class="badge good">${esc(v.fit)}</span></div>
+            <div class="tiny">${esc(v.summary)}</div>
+            <div class="renoVideoLink">Watch on YouTube ↗</div>
+          </a>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
 function sweatClass(level){
   return level === 'Easy' ? 'detailEasy' : level === 'Hard' ? 'detailHard' : 'detailMedium';
 }
@@ -132,6 +270,11 @@ function ensureProjectDetailStyles(){
     .sweatRating{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin:5px 0 7px}.sweatWord{font-size:25px;font-weight:950}
     .detailEasy{color:#9ac69d}.detailMedium{color:#e0bd75}.detailHard{color:#e89a93}
     .detailMiniGrid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:10px}.detailMini{background:#0d160f;border:1px solid #263b2b;border-radius:12px;padding:10px;font-size:12px;color:var(--muted)}
+    .renoVideoList{display:grid;gap:8px;margin-top:9px}
+    .renoVideoCard{display:block;text-decoration:none;background:#0d160f;border:1px solid #2d4733;border-radius:13px;padding:11px;color:#dce3d9}
+    .renoVideoCard:hover{border-color:#6f9b76;background:#122017}
+    .renoVideoTop{display:flex;gap:8px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;margin-bottom:5px}
+    .renoVideoLink{margin-top:7px;color:var(--green2);font-size:12px;font-weight:900}
     @media(max-width:560px){#projectDetailModal{padding:8px}#projectDetailCard{max-height:94vh;border-radius:15px;padding:14px}.projectDetailTitle{font-size:22px}.detailMiniGrid{grid-template-columns:1fr}}
   `;
   document.head.appendChild(style);
@@ -188,6 +331,7 @@ function openProjectDetail(project){
       <p class="tiny">${esc(detail.sweatWhy)}</p>
       <div class="detailMiniGrid"><div class="detailMini"><strong>Good owner-labor opportunity</strong><br>${esc(detail.diy)}</div><div class="detailMini"><strong>Where to use a professional</strong><br>${esc(detail.pro)}</div></div>
     </div>
+    ${renderRenovisionVideos(project)}
     <div class="note" style="margin-top:12px">The budget and planning value-add shown here remain editable in the project card. Value impact is a planning estimate, not an appraisal or guarantee.</div>
   `;
   document.getElementById('projectDetailClose').onclick=closeProjectDetail;
